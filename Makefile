@@ -8,8 +8,8 @@ FILES = *.c $(HALDIR)/*.c
 
 PARAMS = $(CFLAGS) -o $(OUTPUT) $(SYMBOL)
 all:
-	$(CC) $(PARAMS) $(FILES)
+	$(CC) $(PARAMS) $(FILES) $(MAIN)
 debug:
-	$(CC) $(PARAMS) -g $(FILES)
+	$(CC) $(PARAMS) -g $(FILES) $(MAIN)
 clean:
 	rm -f *.o $(OUTPUT)

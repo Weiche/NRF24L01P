@@ -19,7 +19,7 @@
 
 #define NRF24_SPIDEV "/dev/spidev0.0"
 #define NRF24_CE_PIN 17
-
+#define Check(ret,mesg) if(ret < 0){perror(mesg);exit(-1);}
 int mode = 0, bits = 8, speed = 10000000, delay = 1;
 int nrf24_spi;
 int CE_Pin_Dir, CE_Pin_Value;
@@ -27,9 +27,8 @@ uint8_t trash_rx[128];
 uint8_t dummy_tx[128];
 
 static void pabort(char *str) {
-
-	printf("%s\r\n", str);
-	exit(1);
+	perror(str);
+	exit(-1);
 }
 static void transfer(const uint8_t *tx_buffer, uint8_t *rx_buffer,
 		uint32_t length) {
@@ -49,16 +48,17 @@ static void NRF24_CE_Init(void) {
 	char ce_pinpath[64];
 	char temp[64];
 	int file;
+	int ret;
 	/* Export GPIO */
 	file = open("/sys/class/gpio/export", O_RDWR);
-	if( file < 0 ){
-		pabort("Can not export GPIO for CE");
-	}
-	write(file, temp, sprintf(temp, "%d", NRF24_CE_PIN));
+	Check(file , "Can not export GPIO for CE");
+
+
+	ret = write(file, temp, sprintf(temp, "%d", NRF24_CE_PIN));
 	close(file);
 
-	sprintf(ce_pinpath, "/sys/class/gpio/gpio%d/", NRF24_CE_PIN);
 	/* Set Direction of CE Pin */
+	sprintf(ce_pinpath, "/sys/class/gpio/gpio%d/", NRF24_CE_PIN);
 	sprintf(temp, "%sdirection", ce_pinpath);
 	printf("Open %s !\r\n", temp);
 	if ((CE_Pin_Dir = open(temp, O_RDWR)) < 0) {
@@ -66,8 +66,8 @@ static void NRF24_CE_Init(void) {
 		pabort("Failed to open the pin ce direction\r\n");
 
 	}
-
-	write(CE_Pin_Dir, "out", 3);
+	ret = write(CE_Pin_Dir, "out", 3);
+	Check(ret ,"Write CE direction fail");
 	/* Reset CE to low */
 	sprintf(temp, "%svalue", ce_pinpath);
 	printf("Open %s !\r\n", temp);
@@ -76,8 +76,8 @@ static void NRF24_CE_Init(void) {
 		pabort("Failed to open the pin ce value\r\n");
 
 	}
-	write(CE_Pin_Value, "0", 1);
-
+	ret = write(CE_Pin_Value, "0", 1);
+	Check(ret , "write CE fail");
 }
 int msleep( int ms ){
 	return usleep(ms * 1000);
@@ -100,8 +100,8 @@ int NRF24_HAL_Init( void ) {
 	printf("Open %s !\r\n", filename);
 	if ((nrf24_spi = open(filename, O_RDWR)) < 0) {
 		/* ERROR HANDLING: you can check error to see what went wrong */
-		printf("Failed to open the spi\r\n");
-		exit(1);
+		pabort("Failed to open the spi\r\n");
+
 	}
 	/*
 	 * spi mode
