@@ -1,3 +1,7 @@
+#ifdef NRF24_HAL_LINUX
+/******************************************
+*Don`t include nrf24l01.h in this file
+*******************************************/
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -153,17 +157,12 @@ void NRF24_CE_Disable(void) {
 	write(CE_Pin_Value,"0",1);
 }
 
-void NRF24_Write(const uint8_t *pbuff, uint32_t num) {
-	transfer(pbuff,trash_rx,num);
-}
-void NRF24_Read(uint8_t *pbuff, uint32_t num) {
-	transfer(dummy_tx,pbuff,num);
-}
+
 void NRF24_InsWrite(uint8_t instruction,const uint8_t *pbuff,uint32_t num){
 	static uint8_t temp[256];
 	temp[0] = instruction;
 	memcpy(temp + 1, pbuff, num);
-	NRF24_Write(temp, num+1);
+	transfer(temp,trash_rx,num+1);
 }
 void NRF24_InsRead(uint8_t instruction,uint8_t *pbuff,uint32_t num){
 	static uint8_t temp[256];
@@ -189,6 +188,7 @@ void NRF24_Test( void ){
 	}
 
 }
+#endif
 #if TEST
 void main( void ){
 	NRF24_Test();

@@ -118,7 +118,13 @@ typedef struct {
 #define STATUS_RX_P_NO		(7<<1)
 #define STATUS_TX_FULL		(1<<0)
 
-
+typedef struct{
+	int (*NRF24_Printf) (__const char *__restrict __format, ...);
+	int (*NRF24_DelayMs) (__const int ms);
+}NRF24_OS_Functions_t;
+extern NRF24_OS_Functions_t NRF24_OS_Functions;
+#define NRF24_Printf   (NRF24_OS_Functions.NRF24_Printf)
+#define NRF24_DelayMs  (NRF24_OS_Functions.NRF24_DelayMs)
 void NRF24_Dump(void) ;
 void NRF24_Send(NRF24_InitTypedef *nrf, const uint8_t *pbuff, const uint16_t length) ;
 void NRF24_Receive(NRF24_InitTypedef *nrf, uint8_t *pbuff, uint32_t *length);
@@ -137,5 +143,9 @@ uint8_t NRF24_Reg_ResetBit(uint8_t reg, uint8_t value);
 #define NRF24_SetRXMode() NRF24_Reg_SetBit(CONFIG,0x01)
 #define NRF24_SetTXMode() NRF24_Reg_ResetBit(CONFIG,0x01)
 /* os */
-#include "nrf24l01_os.h"
+extern void NRF24_CE_Enable(void);
+extern void NRF24_CE_Disable(void);
+void NRF24_HAL_Init(void);
+uint32_t NRF24_HAL_Test( void );
+
 #endif

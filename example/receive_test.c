@@ -1,4 +1,4 @@
-#include "nrf24l01.h"
+#include "../nrf24l01.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -28,7 +28,7 @@ uint32_t ECC_Encode(uint8_t data, uint8_t *wbuff) {
 	return (ECC_REPEAT + 1);
 }
 
-void ECC_Decode(uint8_t *rbuff, uint8_t* data) {
+void ECC_Decode(const uint8_t *rbuff, uint8_t* data) {
 	uint8_t bit, i, temp, zero, one;
 
 	*data = 0;
@@ -50,11 +50,7 @@ void ECC_Decode(uint8_t *rbuff, uint8_t* data) {
 	}
 }
 
-/*
- @return
- NRF24_HAL_ERR	1
- NRF24_HAL_OK  0
- */
+
 void NRF24_Listen(NRF24_InitTypedef *pnrf, uint8_t pipe, void (*callback)(const uint8_t, const uint8_t*, const uint32_t)) {
 #define RX_PipeNum_Mask (0x07<<1)//[3:1]
 	static uint8_t data_buff[32];
@@ -86,7 +82,8 @@ void NRF24_Callback1(const uint8_t pipe, const uint8_t *pdata, const uint32_t le
 	uint32_t h, t, s, count;
 	uint8_t temp;
 	time_t timer;
-	char *ptime_str, *pcursor;
+	char *ptime_str,*pcursor0;
+	const char *pcursor;
 
 	if ((fp = fopen("/var/log/lpc810.log", "rw+a")) == NULL) {
 		printf("ファイルのオープンに失敗しました．\n");
@@ -95,9 +92,10 @@ void NRF24_Callback1(const uint8_t pipe, const uint8_t *pdata, const uint32_t le
 	time(&timer);
 	ptime_str = ctime(&timer);
 	pcursor = ptime_str;
-	while (*pcursor != '\n')
-		pcursor++;
-	*pcursor = 0;
+	while (*pcursor0 != '\n')
+		pcursor0++;
+	*pcursor0 = 0;
+
 	pcursor = pdata;
 	printf("32Byte Packet\r\n-----------------\r\n");
 	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
@@ -164,6 +162,11 @@ void NRF24_Callback3(const uint8_t pipe, const uint8_t *pdata, const uint32_t le
 	}
 
 }
+/*
+ @return
+ NRF24_HAL_ERR	1
+ NRF24_HAL_OK  0
+ */
 int main(int argc, char **argv) {
 	uint32_t data_length;
 	uint8_t data_buff[128], rx_addr[5];
