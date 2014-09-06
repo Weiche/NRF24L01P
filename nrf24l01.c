@@ -2,17 +2,9 @@
 #include <string.h>
 #include <stdint.h>
 
-/* Function prototype */
-extern uint8_t NRF24_SendReceiveByte(uint8_t data);
-extern void NRF24_Enable(void);
-extern void NRF24_Disable(void);
-
-extern void NRF24_HAL_Init(void);
-extern void NRF24_Write(const uint8_t *pbuff, uint32_t num);
-extern void NRF24_Read(uint8_t *pbuff, uint32_t num);
-
 extern void NRF24_InsWrite(uint8_t instruction, const uint8_t *pbuff, uint32_t num);
 extern void NRF24_InsRead(uint8_t instruction, uint8_t *pbuff, uint32_t num);
+
 void NRF24_Instruction(uint8_t ins) {
 	NRF24_InsWrite(ins, NULL, 0);
 }

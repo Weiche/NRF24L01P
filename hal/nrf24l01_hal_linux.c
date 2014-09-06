@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #define NRF24_SPIDEV "/dev/spidev0.0"
 #define NRF24_CE_PIN 17
