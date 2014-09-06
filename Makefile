@@ -1,12 +1,13 @@
 CC = gcc
-CFLAGS = -I.
+INCLUDE = -I.
 OUTPUT = nrf24
-HALDIR = hal
-HALTYPE = NRF24_HAL_LINUX
-SYMBOL = -D$(HALTYPE)
-FILES = *.c $(HALDIR)/*.c
+HAL_DIR = hal
+HAL_TYPE = NRF24_HAL_LINUX
+SYMBOL = -D$(HAL_TYPE)
+FILES = *.c $(HAL_DIR)/*.c
+OPT = 
 
-PARAMS = $(CFLAGS) -o $(OUTPUT) $(SYMBOL)
+PARAMS = $(INCLUDE) -o $(OUTPUT) $(SYMBOL) -O$(OPT)
 all:
 	$(CC) $(PARAMS) $(FILES) $(MAIN)
 debug:
