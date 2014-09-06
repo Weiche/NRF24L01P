@@ -42,3 +42,8 @@ void NRF24_CSN_Test(void){
 	NRF24_Enable();
 	NRF24_Disable();
 }
+#if TEST
+void main( void ) {
+	NRF24_Test();
+}
+#endif

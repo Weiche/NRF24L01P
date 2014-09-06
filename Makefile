@@ -2,10 +2,14 @@ CC = gcc
 CFLAGS = -I.
 OUTPUT = nrf24
 HALDIR = hal
+HALTYPE = NRF24_HAL_LINUX
+SYMBOL = $(HALTYPE)
 FILES = *.c $(HALDIR)/*.c
+
+PARAMS = $(CFLAGS) -o $(OUTPUT) $(SYMBOL)
 all:
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(FILES)
+	$(CC) $(PARAMS) $(FILES)
 debug:
-	$(CC) $(CFLAGS) -g -o $(OUTPUT) $(FILES)
+	$(CC) $(PARAMS) -g $(FILES)
 clean:
 	rm -f *.o $(OUTPUT)
