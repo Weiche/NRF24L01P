@@ -7,10 +7,11 @@
 
 #ifndef NRF24L01_HAL_H_
 #define NRF24L01_HAL_H_
-
+#include <stdint.h>
+#include <stdio.h>
 typedef struct{
-	int (*Printf) (__const char *__restrict __format, ...);
-	int (*DelayMs) (__const int ms);
+	int (*Printf) (const char *__restrict __format, ...);
+	int (*DelayMs) (const int ms);
 }NRF24_OS_Functions_t;
 extern NRF24_OS_Functions_t NRF24_OS_Functions;
 #define NRF24_Printf   NRF24_OS_Functions.Printf

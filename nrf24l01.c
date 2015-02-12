@@ -5,10 +5,10 @@
 extern void NRF24_InsWrite(uint8_t instruction, const uint8_t *pbuff, uint32_t num);
 extern void NRF24_InsRead(uint8_t instruction, uint8_t *pbuff, uint32_t num);
 
-int NULL_PRINTF(__const char *__restrict __format, ...){
+int NULL_PRINTF(const char *__restrict __format, ...){
 	return -1;
 }
-int NULL_DELAYMS(__const int ms){
+int NULL_DELAYMS(const int ms){
 	return -1;
 }
 NRF24_OS_Functions_t NRF24_OS_Functions = {NULL_PRINTF,NULL_DELAYMS};
