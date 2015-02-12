@@ -14,3 +14,5 @@ debug:
 	$(CC) $(PARAMS) -g $(FILES) $(MAIN)
 clean:
 	rm -f *.o $(OUTPUT)
+example:
+	$(CC) $(PARAMS) $(FILES) example/receive_test.c
