@@ -57,6 +57,9 @@ void NRF24_Set_RX_Addr(const uint8_t *rx_addr, uint8_t pipe) {
 void NRF24_TXFIFO_Write(const uint8_t *pbuff, uint32_t num) {
 	NRF24_InsWrite(WR_TX_PLOAD, pbuff, num <= 32 ? num : 32);
 }
+void NRF24_TXFIFO_Write_NoACK(const uint8_t *pbuff, uint32_t num) {
+	NRF24_InsWrite(WR_TX_PLOAD_NOACK, pbuff, num <= 32 ? num : 32);
+}
 void NRF24_RXFIFO_Read(uint8_t *pbuff, uint32_t num) {
 	NRF24_InsRead(RD_RX_PLOAD, pbuff, num <= 32 ? num : 32);
 }
@@ -113,14 +116,22 @@ void NRF24_Dump(void) {
 	NRF24_Printf("RX Pipe 1: %02X%02X%02X%02X%02X\r\n", addr[0], addr[1], addr[2], addr[3], addr[4]);
 
 }
-void NRF24_Send(NRF24_InitTypedef *nrf, const uint8_t *pbuff, const uint16_t length) {
-	(void) NRF24_Send;
+
+
+void NRF24_SendPacket(NRF24_InitTypedef *nrf, const uint8_t *pbuff, const uint16_t length, const int NoACK) {
+	(void) NRF24_SendPacket;
 	if (nrf->Mode != Mode_TX) {
 		NRF24_Reg_ResetBit(CONFIG, 0x01);
 		nrf->Mode = Mode_TX;
 	}
-	NRF24_TXFIFO_Write(pbuff, length);
+	if ( !NoACK ){
+		NRF24_TXFIFO_Write(pbuff, length);
+	}else{
+		NRF24_TXFIFO_Write_NoACK(pbuff, length);
+	}
 }
+
+
 void NRF24_Receive(NRF24_InitTypedef *nrf, uint8_t *pbuff, uint32_t *length) {
 	uint8_t dummy;
 	NRF24_Write_Reg( STATUS, STATUS_RX_DR);
@@ -171,6 +182,9 @@ void NRF24_Init(NRF24_InitTypedef *nrf) {
 	// Enable 2-byte CRC and power up in receive mode.
 	value = nrf->CRC_Control | nrf->CRC_Length | nrf->Interrupt_Mask | nrf->Power | nrf->Mode;
 	NRF24_Write_Reg(CONFIG, value);
+
+	/* Enable noack command default */
+	NRF24_Write_Reg(FEATURE,0x01);
 }
 
 // scanning all channels in the 2.4GHz band

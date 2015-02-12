@@ -50,6 +50,8 @@
 #define FLUSH_RX        0xE2  // Define flush RX register command
 #define REUSE_TX_PL     0xE3  // Define reuse TX payload register command
 #define NOP             0xFF  // Define No Operation, might be used to read status register
+#define WR_TX_PLOAD_NOACK 0xB0// Define TX payload with no ack
+
 /* Hal */
 #define NRF24_HAL_ERR	1
 #define NRF24_HAL_OK  0
@@ -121,7 +123,8 @@ typedef struct {
 
 
 void NRF24_Dump(void) ;
-void NRF24_Send(NRF24_InitTypedef *nrf, const uint8_t *pbuff, const uint16_t length) ;
+void NRF24_SendPacket(NRF24_InitTypedef *nrf, const uint8_t *pbuff, const uint16_t length, const int NoACK);
+#define NRF24_Send(a,b,c) NRF24_SendPacket( a , b , c , 0 )
 void NRF24_Receive(NRF24_InitTypedef *nrf, uint8_t *pbuff, uint32_t *length);
 void NRF24_Init(NRF24_InitTypedef *nrf) ;
 void NRF24_Get_TX_Addr(uint8_t *tx_addr);
