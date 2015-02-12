@@ -1,3 +1,4 @@
+#ifdef NRF24_HAL_LPC8xx
 #include <stdint.h>
 #include "nrf24_config.h"
 
@@ -114,4 +115,5 @@ uint32_t NRF24_HAL_Test( void ){
 void main( void ){
 	NRF24_Test();
 }
+#endif
 #endif

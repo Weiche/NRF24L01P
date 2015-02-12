@@ -11,46 +11,6 @@
 #include <time.h>
 #include <unistd.h>
 
-/*Error correction code*/
-/*Generate 32byte nrf24 packet */
-/*  config */
-#define ECC_REPEAT 8
-/*  End config */
-#if (((ECC_REPEAT+1)/2)!=((ECC_REPEAT)/2))
-#error "Repeat must be odd"
-#endif
-
-uint32_t ECC_Encode(uint8_t data, uint8_t *wbuff) {
-	uint8_t i;
-	for (i = 0; i <= ECC_REPEAT; i++) {
-		wbuff[i] = data;
-	}
-	return (ECC_REPEAT + 1);
-}
-
-void ECC_Decode(const uint8_t *rbuff, uint8_t* data) {
-	uint8_t bit, i, temp, zero, one;
-
-	*data = 0;
-
-	for (bit = 0; bit < 8; bit++) {
-		zero = 0;
-		one = 0;
-		for (i = 0; i <= ECC_REPEAT; i++) {
-			temp = rbuff[i] >> bit;
-			if (temp & 0x01) {
-				one++;
-			} else {
-				zero++;
-			}
-		}
-		if (one > zero) {
-			*data |= (1 << bit);
-		}
-	}
-}
-
-
 void NRF24_Listen(NRF24_InitTypedef *pnrf, uint8_t pipe, void (*callback)(const uint8_t, const uint8_t*, const uint32_t)) {
 #define RX_PipeNum_Mask (0x07<<1)//[3:1]
 	static uint8_t data_buff[32];
@@ -74,65 +34,7 @@ void NRF24_Listen(NRF24_InitTypedef *pnrf, uint8_t pipe, void (*callback)(const 
 		callback((read & RX_PipeNum_Mask) >> 1, data_buff, len);
 	}
 }
-void NRF24_Callback1(const uint8_t pipe, const uint8_t *pdata, const uint32_t len) {
-	int ret;
-	static FILE *fp = 0;
-	static uint8_t last_h;
-	static uint8_t last_t;
-	uint32_t h, t, s, count;
-	uint8_t temp;
-	time_t timer;
-	char *ptime_str,*pcursor0;
-	const char *pcursor;
 
-	if ((fp = fopen("/var/log/lpc810.log", "rw+a")) == NULL) {
-		printf("ファイルのオープンに失敗しました．\n");
-		exit(1);
-	}
-	time(&timer);
-	ptime_str = ctime(&timer);
-	pcursor = ptime_str;
-	while (*pcursor0 != '\n')
-		pcursor0++;
-	*pcursor0 = 0;
-
-	pcursor = pdata;
-	printf("32Byte Packet\r\n-----------------\r\n");
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	pcursor += 4;
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	pcursor += 4;
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	pcursor += 4;
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	pcursor += 4;
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	pcursor += 4;
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	pcursor += 4;
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	pcursor += 4;
-	printf("0x%02X 0x%02X 0x%02X 0x%02X \r\n", pcursor[0], pcursor[1], pcursor[2], pcursor[3]);
-	printf("End\r\n-----------------\r\n");
-	printf("%s\r\n", ptime_str);
-
-	pcursor = pdata;
-	ECC_Decode(pcursor, &temp);
-	s = temp;
-	ECC_Decode(pcursor + 9, &temp);
-	h = temp;
-	ECC_Decode(pcursor + 18, &temp);
-	t = temp;
-	printf("S=%u,H=%u,T=%u\r\n", s, h, t);
-
-	if (s == 0xF1 && t <= 50 && h <= 100) {
-		count = fprintf(fp, "%d\n%d\n%d\nEnd\n", timer, h, t);
-	}
-
-	fclose(fp);
-	fp = 0;
-	fflush(stdout);
-}
 void NRF24_Callback2(const uint8_t pipe, const uint8_t *pdata, const uint32_t len) {
 	time_t timer;
 	static time_t last_called_time;
@@ -252,7 +154,7 @@ int main(int argc, char **argv) {
 	NRF24_Write_Reg(FEATURE, (1<<2)|(1<<0));
 #else
 	NRF24_Write_Reg(DYPLD, 0x00);
-	NRF24_Write_Reg(FEATURE, 0x00);
+	NRF24_Write_Reg(FEATURE, 0x01);
 #endif
 	NRF24_Set_TX_Addr("812_0");
 	NRF24_Set_RX_Addr(rx_p1_addr, 1);

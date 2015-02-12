@@ -1,3 +1,4 @@
+#ifdef NRF24_HAL_STM8S
 #include "nrf24l01_os.h"
 #include "stm8s.h"
 #include "stm8s_spi.h"
@@ -102,4 +103,5 @@ void NRF24_Test( void ){
 void main( void ){
 	NRF24_Test();
 }
+#endif
 #endif
