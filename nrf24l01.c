@@ -166,7 +166,7 @@ void NRF24_Init(NRF24_InitTypedef *nrf) {
 	if ((nrf->TX_Power != TX_Power_0DB) && (nrf->TX_Power != TX_Power_7DB)) {
 		nrf->TX_Power = TX_Power_0DB;
 	}
-	value = nrf->DataRate | RF_SETUP_LNA_HCURR | nrf->TX_Power;
+	value = nrf->DataRate | nrf->TX_Power;
 	NRF24_Write_Reg(RF_SETUP, value);
 
 	// clear the interrupt flags in case the radio's still asserting an old unhandled interrupt

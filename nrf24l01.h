@@ -37,7 +37,6 @@
 #define RF_SETUP_RF_DR		(1<<3)
 #define RF_SETUP_PWR_0DB	(3<<1)
 #define RF_SETUP_PWR_7DB	(0x07)
-#define RF_SETUP_LNA_HCURR	(0x01)
 
 //********************************************************************************************************************//
 // SPI(nRF24L01) commands
