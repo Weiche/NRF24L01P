@@ -137,9 +137,10 @@ uint8_t NRF24_Read_Reg(uint8_t reg);
 /* raw api */
 uint8_t NRF24_Reg_SetBit(uint8_t reg, uint8_t value);
 uint8_t NRF24_Reg_ResetBit(uint8_t reg, uint8_t value);
-#define NRF24_SetRXMode() NRF24_Reg_SetBit(CONFIG,0x01)
-#define NRF24_SetTXMode() NRF24_Reg_ResetBit(CONFIG,0x01)
-
+#define NRF24_SetRXMode()	NRF24_Reg_SetBit(CONFIG,0x01)
+#define NRF24_SetTXMode()	NRF24_Reg_ResetBit(CONFIG,0x01)
+#define NRF24_Flush_TX()	NRF24_Instruction(FLUSH_TX)
+#define NRF24_Flush_RX()	NRF24_Instruction(FLUSH_RX)
 
 
 #endif
