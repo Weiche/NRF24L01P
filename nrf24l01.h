@@ -128,7 +128,7 @@ int		NRF24_SendPolling(void);
 int		NRF24_SendPacketBlocking(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t length, const int NoACK);
 
 int NRF24_GetReceivedPacket( uint8_t *pbuff, uint32_t *length, uint8_t *pipe , uint8_t status);
-
+void NRF24_ReceiveStart( void );
 void NRF24_Init(NRF24_InitTypedef *nrf) ;
 void NRF24_Get_TX_Addr(uint8_t *tx_addr);
 void NRF24_Set_TX_Addr(const uint8_t *tx_addr) ;

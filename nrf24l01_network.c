@@ -112,21 +112,17 @@ __weak void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t le
 	__nop();
 }
 
-void NRF24_Net_ReceiveStart( void ){
-	/* Ensure the RX mode is on */
-	NRF24_Reg_SetBit(CONFIG, 0x01);
-	NRF24_CE_Enable();
-}
+
 
 void NRF24_Net_ReceiveTask( void ){
 	static uint8_t data[32],status,pipe;
 	static uint32_t length;
 	
 	status = NRF24_Read_Reg(STATUS);
-	if( NRF24_Read_Reg(STATUS) & STATUS_RX_DR ){
+	if( status & STATUS_RX_DR ){
 		if( NRF24_GetReceivedPacket( data, &length, &pipe , status) == 0 ){
 			/* if not a packet for self or not a router or not a broadcast */
-			if( data[1] != Network.self_ip && data[1] != 0xFF && Network.self_ip!= 1 ){
+			if( (data[1] != Network.self_ip) && (data[1] != 0xFF) && (Network.self_ip != 1) ){
 				return;
 			}else{
 				NRF24_Net_ReceiveCallback( data , length);

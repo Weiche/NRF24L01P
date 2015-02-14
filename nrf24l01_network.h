@@ -34,11 +34,11 @@ int NRF24_Net_Set_RXAddr( const uint8_t rx_addr, uint8_t pipe );
 
 int NRF24_Net_Init( NRF24_InitTypedef* ifnet, const uint8_t* network_mac, const uint8_t self_ip);
 
-int NRF24_Net_Sent( const uint8_t dst_ip, uint8_t* packet, const uint8_t len );
+int NRF24_Net_Sent( const uint8_t dst_ip,  uint8_t* packet, const uint8_t len );
 
 __weak void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len);
 
-void NRF24_Net_ReceiveStart( void );
+
 
 void NRF24_Net_ReceiveTask( void );
 

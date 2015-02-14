@@ -168,22 +168,27 @@ int NRF24_SendPacketBlocking(uint8_t *mac_addr, const uint8_t *pbuff, const uint
 	return NRF24_SendPolling();
 }
 
+void NRF24_ReceiveStart( void ){
+	/* Ensure the RX mode is on */
+	NRF24_Reg_SetBit(CONFIG, 0x01);
+	NRF24_CE_Enable();
+}
 int NRF24_GetReceivedPacket( uint8_t *pbuff, uint32_t *length, uint8_t *pipe , uint8_t status) {
 	uint8_t dummy;
 	
-	if( status & STATUS_RX_DR ){
-		return -1;
-	}
-	NRF24_InsRead(0x60, &dummy, 1);
-	*length = dummy;
-
-	if (*length <= 32 && *length > 0){
-		NRF24_RXFIFO_Read(pbuff, *length);
+	if( status & STATUS_RX_DR ){		
+		NRF24_InsRead(0x60, &dummy, 1);
+		*length = dummy;
 		NRF24_Write_Reg( STATUS, STATUS_RX_DR );
-		*pipe = (status & RX_PipeNum_Mask) >> 1;
-		return 0;
+		if (*length <= 32 && *length > 0){
+			NRF24_RXFIFO_Read(pbuff, *length);			
+			*pipe = (status & RX_PipeNum_Mask) >> 1;
+			return 0;
+		}else{
+			return -2;
+		}
 	}
-		return -2;
+	return -1;
 }
 
 
