@@ -52,7 +52,11 @@ void NRF24_Get_RX_Addr(uint8_t *rx_addr, uint8_t pipe) {
 void NRF24_Set_RX_Addr(const uint8_t *rx_addr, uint8_t pipe) {
 	if (pipe > 5)
 		return;
-	NRF24_InsWrite(W_REG | (RX_ADDR_P0 + pipe), rx_addr, 5);
+	if( pipe <= 1 ){
+		NRF24_InsWrite(W_REG | (RX_ADDR_P0 + pipe), rx_addr, 5);
+	}else{
+		NRF24_InsWrite(W_REG | (RX_ADDR_P0 + pipe), rx_addr, 1);
+	}
 }
 void NRF24_TXFIFO_Write(const uint8_t *pbuff, uint32_t num) {
 	NRF24_InsWrite(WR_TX_PLOAD, pbuff, num <= 32 ? num : 32);
@@ -118,29 +122,70 @@ void NRF24_Dump(void) {
 }
 
 
-void NRF24_SendPacket(NRF24_InitTypedef *nrf, const uint8_t *pbuff, const uint16_t length, const int NoACK) {
-	(void) NRF24_SendPacket;
-	if (nrf->Mode != Mode_TX) {
-		NRF24_Reg_ResetBit(CONFIG, 0x01);
-		nrf->Mode = Mode_TX;
-	}
+void NRF24_SendPrepare(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t length, const int NoACK) {
+	NRF24_CE_Disable();
+	/* TX mode */
+	NRF24_Reg_ResetBit(CONFIG, 0x01);
+	/*	flush fifo ()*/
+	NRF24_Flush_TX();
+	NRF24_Write_Reg(STATUS,STATUS_MAX_RT|STATUS_TX_DS);
+	NRF24_Set_TX_Addr(mac_addr);
+	
 	if ( !NoACK ){
 		NRF24_TXFIFO_Write(pbuff, length);
 	}else{
+		NRF24_Set_RX_Addr(mac_addr,0);
 		NRF24_TXFIFO_Write_NoACK(pbuff, length);
-	}
+	}	
+	NRF24_CE_Enable();
 }
 
+int NRF24_SendPolling(void){	
+	volatile uint8_t status,fifo_status;
+	do{			
+		status = NRF24_Read_Reg(STATUS);
+		fifo_status = NRF24_Read_Reg(FIFO_STATUS);
+		if( status & STATUS_MAX_RT ){				
+			goto FAIL;
+		}
+		if ( status&STATUS_TX_DS ){
+			goto OK;
+		}
+	}while(1);
+	
+	OK:
+	NRF24_CE_Disable();
+	return 0;
+	
+	FAIL:
+	NRF24_CE_Disable();
+	return -1;
+	
+}
 
-void NRF24_Receive(NRF24_InitTypedef *nrf, uint8_t *pbuff, uint32_t *length) {
+int NRF24_SendPacketBlocking(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t length, const int NoACK){	
+	NRF24_SendPrepare(mac_addr, pbuff, length, NoACK);
+	return NRF24_SendPolling();
+}
+
+int NRF24_GetReceivedPacket( uint8_t *pbuff, uint32_t *length, uint8_t *pipe , uint8_t status) {
 	uint8_t dummy;
-	NRF24_Write_Reg( STATUS, STATUS_RX_DR);
+	
+	if( status & STATUS_RX_DR ){
+		return -1;
+	}
 	NRF24_InsRead(0x60, &dummy, 1);
 	*length = dummy;
-	if (*length == 0 || *length > 32)
-		return;
-	NRF24_RXFIFO_Read(pbuff, *length);
+
+	if (*length <= 32 && *length > 0){
+		NRF24_RXFIFO_Read(pbuff, *length);
+		NRF24_Write_Reg( STATUS, STATUS_RX_DR );
+		*pipe = (status & RX_PipeNum_Mask) >> 1;
+		return 0;
+	}
+		return -2;
 }
+
 
 /**
  * Configure radio defaults and turn on the radio in receive mode.
@@ -150,7 +195,7 @@ void NRF24_Receive(NRF24_InitTypedef *nrf, uint8_t *pbuff, uint32_t *length) {
 void NRF24_Init(NRF24_InitTypedef *nrf) {
 	uint8_t value;
 	NRF24_CE_Disable();
-	// set address width to 5 bytes.
+	// set address width 
 	NRF24_Write_Reg(SETUP_AW, nrf->Address_Length - 2);
 
 	// set Enhanced Shockburst retry to every 586 us, up to 5 times.  If packet collisions are a problem even with AA enabled,

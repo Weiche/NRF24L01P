@@ -120,11 +120,15 @@ typedef struct {
 #define STATUS_RX_P_NO		(7<<1)
 #define STATUS_TX_FULL		(1<<0)
 
+#define RX_PipeNum_Mask (0x07<<1)//[3:1]
 
-void NRF24_Dump(void) ;
-void NRF24_SendPacket(NRF24_InitTypedef *nrf, const uint8_t *pbuff, const uint16_t length, const int NoACK);
-#define NRF24_Send(a,b,c) NRF24_SendPacket( a , b , c , 0 )
-void NRF24_Receive(NRF24_InitTypedef *nrf, uint8_t *pbuff, uint32_t *length);
+void	NRF24_Dump(void) ;
+void	NRF24_SendPrepare(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t length, const int NoACK) ;
+int		NRF24_SendPolling(void);
+int		NRF24_SendPacketBlocking(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t length, const int NoACK);
+
+int NRF24_GetReceivedPacket( uint8_t *pbuff, uint32_t *length, uint8_t *pipe , uint8_t status);
+
 void NRF24_Init(NRF24_InitTypedef *nrf) ;
 void NRF24_Get_TX_Addr(uint8_t *tx_addr);
 void NRF24_Set_TX_Addr(const uint8_t *tx_addr) ;
