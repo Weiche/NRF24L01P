@@ -4,6 +4,13 @@
 #include <stdint.h>
 #include <string.h>
 #include "nrf24l01.h"
+#ifndef __packed
+	#define __packed __attribute__((__packed__))
+#endif
+#ifndef __weak
+	#define __weak __attribute__((__weak__))
+#endif
+
 typedef enum{
 	type_noack_bit = 0x01,
 	type_arp = 0x02,
@@ -14,12 +21,12 @@ typedef struct{
 	uint8_t ip;
 }nrf24_node_t;
 
-typedef __packed struct {
+typedef  struct {
 	uint8_t type;
 	uint8_t dst_ip;
 	uint8_t src_ip;
 	uint8_t payload[29];
-}network_packet_t;
+} __packed network_packet_t;
 
 typedef struct{
 	NRF24_InitTypedef* ifnet;

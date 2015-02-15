@@ -1,6 +1,7 @@
 
 #include "nrf24l01.h"
 #include <string.h>
+#include "nrf24l01_network.h"
 /* imcomplete */
 /* pipe assignment */
 /*
@@ -20,30 +21,6 @@ Packet
 --Payload 1-31bytes
 */
 
-typedef enum{
-	type_noack_bit = 0x01,
-	type_arp = 0x02,
-	type_normal = 0x04
-}packet_type_t;
-
-typedef struct{
-	uint8_t ip;
-}nrf24_node_t;
-
-typedef __packed struct {
-	uint8_t type;
-	uint8_t dst_ip;
-	uint8_t src_ip;
-	uint8_t payload[29];
-}network_packet_t;
-
-typedef struct{
-	NRF24_InitTypedef* ifnet;
-	nrf24_node_t *node_table;
-	uint8_t network_addr[4];
-	uint8_t self_ip;
-}network_info_t;
-/**/
 network_info_t Network = {
 	.network_addr={
 		2,3,4,5
@@ -108,8 +85,7 @@ int NRF24_Net_Sent( const uint8_t dst_ip, uint8_t* packet, const uint8_t len ){
 	}
 	/* wait for transimission */
 }
-__weak void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len){
-	__nop();
+__attribute__((__weak__))  void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len){
 }
 
 
