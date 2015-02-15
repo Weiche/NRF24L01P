@@ -12,19 +12,20 @@
 #include <time.h>
 #include <unistd.h>
 void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len){
-	//printf("%s",pdata);
+	uint8_t data[64];
 	uint8_t i = 0;
-	//printf("RX len = %u \r\n",len);
+
+	memcpy( data, payload, 32 );
 	for (i = 0; i < len; i++) {
-		if (pdata[i] == 0)
+		if (data[i] == 0)
 			break;
-		else if( pdata[i] == '\r' || pdata[i]=='\n')
-			putc(pdata[i], stdout);
-		else if (pdata[i] >= 0x80 || (pdata[i]<0x20))
+		else if( data[i] == '\r' || data[i]=='\n')
+			putc(data[i], stdout);
+		else if (data[i] >= 0x80 || (data[i]<0x20))
 			putc('#', stdout);
 
 		else
-			putc(pdata[i], stdout);
+			putc(data[i], stdout);
 	}
 
 }
@@ -123,7 +124,6 @@ int main(int argc, char **argv) {
 	NRF24_Net_Init( &nrf, network_addr, Network.self_ip);
 
 	NRF24_Dump();
-	NRF24_Net_Start(&nrf, 0, NRF24_Callback3)
 	NRF24_ReceiveStart();
 	while(1){
 		/* send a message */
