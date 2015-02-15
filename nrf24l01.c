@@ -142,25 +142,25 @@ void NRF24_SendPrepare(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t l
 
 int NRF24_SendPolling(void){	
 	volatile uint8_t status,fifo_status;
+	int ret;
 	do{			
 		status = NRF24_Read_Reg(STATUS);
 		fifo_status = NRF24_Read_Reg(FIFO_STATUS);
 		if( status & STATUS_MAX_RT ){				
-			goto FAIL;
+			ret = -1;
+			break;
 		}
 		if ( status&STATUS_TX_DS ){
-			goto OK;
+			ret = 0;
+			break;
 		}
 	}while(1);
 	
-	OK:
+
 	NRF24_CE_Disable();
-	return 0;
-	
-	FAIL:
-	NRF24_CE_Disable();
-	return -1;
-	
+	NRF24_Write_Reg(STATUS,STATUS_TX_DS);
+	return ret;
+
 }
 
 int NRF24_SendPacketBlocking(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t length, const int NoACK){	
@@ -170,6 +170,8 @@ int NRF24_SendPacketBlocking(uint8_t *mac_addr, const uint8_t *pbuff, const uint
 
 void NRF24_ReceiveStart( void ){
 	/* Ensure the RX mode is on */
+	NRF24_CE_Disable();
+	NRF24_Flush_RX();
 	NRF24_Reg_SetBit(CONFIG, 0x01);
 	NRF24_CE_Enable();
 }

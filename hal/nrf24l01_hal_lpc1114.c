@@ -135,7 +135,7 @@ void NRF24_InsWrite(uint8_t instruction,const uint8_t *pbuff,uint32_t num){
 				LPC_SSP0->DR = *pbuff++;
 				tx_num--;
 			}
-			if((LPC_SSP0->SR & SSP_SR_RNE) && rx_num ){
+			while((LPC_SSP0->SR & SSP_SR_RNE) && rx_num ){
 				dummy = LPC_SSP0->DR;
 				rx_num--;
 				(void)dummy;
@@ -184,7 +184,7 @@ void NRF24_InsRead(uint8_t instruction,uint8_t *pbuff,uint32_t num){
 				LPC_SSP0->DR = 0xFF;
 				tx_num--;
 			}
-			if((LPC_SSP0->SR & SSP_SR_RNE) && rx_num ){
+			while((LPC_SSP0->SR & SSP_SR_RNE) && rx_num ){
 				*pbuff++ = LPC_SSP0->DR;
 				rx_num--;
 			}

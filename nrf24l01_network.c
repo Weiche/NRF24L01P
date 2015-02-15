@@ -85,7 +85,7 @@ int NRF24_Net_Sent( const uint8_t dst_ip, uint8_t* packet, const uint8_t len ){
 	}
 	/* wait for transimission */
 }
-__attribute__((__weak__))  void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len){
+__weak void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len){
 }
 
 
