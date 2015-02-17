@@ -121,6 +121,43 @@ typedef struct {
 #define STATUS_TX_FULL		(1<<0)
 
 #define RX_PipeNum_Mask (0x07<<1)//[3:1]
+/* new union define */
+typedef union {
+	__packed struct {
+		uint8_t PRIM_RX:1;
+		uint8_t PWR_UP:1;
+		uint8_t CRCO:1;
+		uint8_t EN_CRC:1;
+		uint8_t MASK_MAX_RT:1;
+		uint8_t MASK_TX_DS:1;
+		uint8_t MASK_RX_DR:1;
+		uint8_t RESERVE0:1;		
+	}reg;
+	uint8_t val;
+}NRF_CONFIG_t;
+typedef union {
+	__packed struct {
+		uint8_t TX_FULL:1;
+		uint8_t RX_NO:3;
+		uint8_t MAX_RT:1;
+		uint8_t TX_DS:1;
+		uint8_t RX_DR:1;
+		uint8_t RESERVE0:1;		
+	}reg;
+	uint8_t val;
+}NRF_STATUS_t;
+typedef union {
+	__packed struct {
+		uint8_t RX_EMPTY:1;
+		uint8_t RX_FULL:1;
+		uint8_t RESERVE0:2;
+		uint8_t TX_EMPTY:1;
+		uint8_t TX_FULL:1;
+		uint8_t TX_REUSE:1;
+		uint8_t RESERVE1:1;		
+	}reg;
+	uint8_t val;
+}NRF_FIFO_STATUS_t;
 
 void	NRF24_Dump(void) ;
 void	NRF24_SendPrepare(uint8_t *mac_addr, const uint8_t *pbuff, const uint16_t length, const int NoACK) ;
@@ -145,6 +182,7 @@ uint8_t NRF24_Reg_ResetBit(uint8_t reg, uint8_t value);
 #define NRF24_SetTXMode()	NRF24_Reg_ResetBit(CONFIG,0x01)
 #define NRF24_Flush_TX()	NRF24_Instruction(FLUSH_TX)
 #define NRF24_Flush_RX()	NRF24_Instruction(FLUSH_RX)
+
 
 #if (NRF24_DEBUG_LEVEL > 0)
 #define NRF24_DEBUG	NRF24_Printf
