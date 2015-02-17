@@ -45,10 +45,6 @@ int NRF24_Net_Init( NRF24_InitTypedef* ifnet, const uint8_t* network_mac, const 
 
 int NRF24_Net_Sent( const uint8_t dst_ip,  uint8_t* packet, const uint8_t len );
 
-__weak void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len);
-
-
-
 void NRF24_Net_ReceiveTask( void );
 
 int NRF24_Net_ARP_Sent( const uint8_t dst_ip );

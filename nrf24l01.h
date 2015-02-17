@@ -146,5 +146,9 @@ uint8_t NRF24_Reg_ResetBit(uint8_t reg, uint8_t value);
 #define NRF24_Flush_TX()	NRF24_Instruction(FLUSH_TX)
 #define NRF24_Flush_RX()	NRF24_Instruction(FLUSH_RX)
 
-
+#if (NRF24_DEBUG_LEVEL > 0)
+#define NRF24_DEBUG	NRF24_Printf
+#else
+#define NRF24_DEBUG(...)
+#endif
 #endif

@@ -80,6 +80,7 @@ int NRF24_Net_Sent(const uint8_t dst_ip, uint8_t* packet, const uint8_t len) {
 	}
 	/* wait for transimission */
 }
+
 __weak void NRF24_Net_ReceiveCallback(const uint8_t* payload , const uint32_t len){
 }
 
@@ -89,10 +90,12 @@ void NRF24_Net_ReceiveTask(void) {
 
 	status = NRF24_Read_Reg(STATUS);
 	if (status & STATUS_RX_DR) {
+		NRF24_DEBUG("Receive Packet,Statu=0x%02X\r\n",status);
 		if (NRF24_GetReceivedPacket(data, &length, &pipe, status) == 0) {
 			/* if not a packet for self or not a router or not a broadcast */
 			if ((data[1] != Network.self_ip) && (data[1] != 0xFF)
 					&& (Network.self_ip != 1)) {
+				NRF24_Printf("dstip:0x%02X,droped\r\n",data[1]);
 				return;
 			} else {
 				NRF24_Net_ReceiveCallback(data, length);
